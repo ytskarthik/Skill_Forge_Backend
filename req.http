@@ -1,0 +1,291 @@
+###health check
+GET http://localhost:5000/common-api/health
+
+###register student
+POST http://localhost:5000/common-api/register
+Content-Type: application/json
+
+{
+    "firstName": "Student",
+    "lastName": "One",
+    "email": "student1@example.com",
+    "password": "Student@123",
+    "role": "STUDENT"
+}
+
+###register instructor
+POST http://localhost:5000/common-api/register
+Content-Type: application/json
+
+{
+    "firstName": "Instructor",
+    "lastName": "One",
+    "email": "instructor1@example.com",
+    "password": "Instructor@123",
+    "role": "INSTRUCTOR"
+}
+
+###register admin (expected to fail with 403 - admin self-registration is blocked)
+POST http://localhost:5000/common-api/register
+Content-Type: application/json
+
+{
+    "firstName": "Admin",
+    "lastName": "One",
+    "email": "admin1@example.com",
+    "password": "Admin@123",
+    "role": "ADMIN"
+}
+
+###login student (copy token from response)
+POST http://localhost:5000/common-api/authenticate
+Content-Type: application/json
+
+{
+    "email": "student1@example.com",
+    "password": "Student@123",
+    "role": "STUDENT"
+}
+
+###login instructor (copy token from response)
+POST http://localhost:5000/common-api/authenticate
+Content-Type: application/json
+
+{
+    "email": "instructor1@example.com",
+    "password": "Instructor@123",
+    "role": "INSTRUCTOR"
+}
+
+###login admin (copy token from response)
+POST http://localhost:5000/common-api/authenticate
+Content-Type: application/json
+
+{
+    "email": "admin1@example.com",
+    "password": "Admin@123",
+    "role": "ADMIN"
+}
+
+###browse all published courses
+GET http://localhost:5000/common-api/courses
+
+###browse courses with filters
+GET http://localhost:5000/common-api/courses?search=node&category=Programming&level=BEGINNER
+
+###get single course by id
+GET http://localhost:5000/common-api/courses/PUT_COURSE_ID_HERE
+
+###create course (instructor)
+POST http://localhost:5000/instructor-api/courses
+Content-Type: application/json
+Authorization: Bearer PUT_INSTRUCTOR_TOKEN_HERE
+
+{
+    "title": "Node.js Masterclass",
+    "subtitle": "Build scalable backend APIs",
+    "description": "A complete backend course with Express and MongoDB",
+    "category": "Programming",
+    "level": "BEGINNER",
+    "language": "English",
+    "price": 0,
+    "thumbnailUrl": "https://example.com/thumb.jpg",
+    "previewVideoUrl": "https://example.com/preview.mp4",
+    "tags": ["node", "express", "mongodb"],
+    "isPublished": true,
+    "lectures": [
+        {
+            "title": "Introduction",
+            "description": "Course introduction",
+            "videoUrl": "https://example.com/video1.mp4",
+            "durationInSeconds": 300,
+            "order": 1,
+            "isPreview": true
+        }
+    ]
+}
+
+###instructor profile
+GET http://localhost:5000/instructor-api/profile
+Authorization: Bearer PUT_INSTRUCTOR_TOKEN_HERE
+
+###read instructor courses
+GET http://localhost:5000/instructor-api/courses
+Authorization: Bearer PUT_INSTRUCTOR_TOKEN_HERE
+
+###upload instructor course thumbnail (multipart/form-data)
+POST http://localhost:5000/instructor-api/uploads/thumbnail
+Authorization: Bearer PUT_INSTRUCTOR_TOKEN_HERE
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="thumbnail"; filename="thumbnail.jpg"
+Content-Type: image/jpeg
+
+< ./sample-thumbnail.jpg
+--boundary--
+
+###update course by id (instructor)
+PATCH http://localhost:5000/instructor-api/courses/69b7b7cb477f7edba6df33d3
+Content-Type: application/json
+Authorization: Bearer PUT_INSTRUCTOR_TOKEN_HERE
+
+{
+    "isPublished": true,
+    "price": 499
+}
+
+###add lecture to course
+POST http://localhost:5000/instructor-api/courses/69b7b7cb477f7edba6df33d3/lectures
+Content-Type: application/json
+Authorization: Bearer PUT_INSTRUCTOR_TOKEN_HERE
+
+{
+    "title": "Routing with Express",
+    "description": "How to structure APIs",
+    "videoUrl": "https://example.com/video2.mp4",
+    "durationInSeconds": 420,
+    "order": 2,
+    "isPreview": false
+}
+
+###update lecture by id
+PATCH http://localhost:5000/instructor-api/courses/69b7b7cb477f7edba6df33d3/lectures/69b7b803477f7edba6df33da
+Content-Type: application/json
+Authorization: Bearer PUT_INSTRUCTOR_TOKEN_HERE
+
+{
+    "title": "Routing with Express - Updated",
+    "durationInSeconds": 450
+}
+
+###upload temporary lecture video (multipart/form-data) and use returned videoUrl in lecture payload
+POST http://localhost:5000/video-api/upload-temp
+Authorization: Bearer PUT_INSTRUCTOR_TOKEN_HERE
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="title"
+
+Lecture 1 - Intro
+--boundary
+Content-Disposition: form-data; name="video"; filename="lecture1.mp4"
+Content-Type: video/mp4
+
+< ./sample-lecture.mp4
+--boundary--
+
+###upload standalone video to videos collection (multipart/form-data)
+POST http://localhost:5000/video-api/upload
+Authorization: Bearer PUT_INSTRUCTOR_TOKEN_HERE
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="title"
+
+Node Course Trailer
+--boundary
+Content-Disposition: form-data; name="description"
+
+Short introduction video
+--boundary
+Content-Disposition: form-data; name="courseId"
+
+69b7b7cb477f7edba6df33d3
+--boundary
+Content-Disposition: form-data; name="duration"
+
+120
+--boundary
+Content-Disposition: form-data; name="video"; filename="trailer.mp4"
+Content-Type: video/mp4
+
+< ./sample-video.mp4
+--boundary--
+
+###get course videos (protected) - student must be enrolled, instructor must own course
+GET http://localhost:5000/video-api/course/69b7b7cb477f7edba6df33d3
+Authorization: Bearer PUT_STUDENT_TOKEN_HERE
+
+###delete uploaded video by id (instructor)
+DELETE http://localhost:5000/video-api/PUT_VIDEO_ID_HERE
+Authorization: Bearer PUT_INSTRUCTOR_TOKEN_HERE
+
+###instructor dashboard
+GET http://localhost:5000/instructor-api/dashboard
+Authorization: Bearer PUT_INSTRUCTOR_TOKEN_HERE
+
+###student profile
+GET http://localhost:5000/student-api/profile
+Authorization: Bearer PUT_STUDENT_TOKEN_HERE
+
+###enroll in course
+POST http://localhost:5000/student-api/courses/69b7b7cb477f7edba6df33d3/enroll
+Authorization: Bearer PUT_STUDENT_TOKEN_HERE
+
+###read student enrollments
+GET http://localhost:5000/student-api/enrollments
+Authorization: Bearer PUT_STUDENT_TOKEN_HERE
+
+###student dashboard
+GET http://localhost:5000/student-api/dashboard
+Authorization: Bearer PUT_STUDENT_TOKEN_HERE
+
+###read progress by course id
+GET http://localhost:5000/student-api/courses/69b7b7cb477f7edba6df33d3/progress
+Authorization: Bearer PUT_STUDENT_TOKEN_HERE
+
+###update progress by course id
+PATCH http://localhost:5000/student-api/courses/69b7b7cb477f7edba6df33d3/progress
+Content-Type: application/json
+Authorization: Bearer PUT_STUDENT_TOKEN_HERE
+
+{
+    "completedLectureIds": [
+        "65f5db51ce64f121a8bb0001",
+        "65f5db51ce64f121a8bb0002"
+    ]
+}
+
+###add or update review by course id
+POST http://localhost:5000/student-api/courses/69b7b7cb477f7edba6df33d3/reviews
+Content-Type: application/json
+Authorization: Bearer PUT_STUDENT_TOKEN_HERE
+
+{
+    "rating": 5,
+    "comment": "Great course with clear explanations"
+}
+
+###admin dashboard
+GET http://localhost:5000/admin-api/dashboard
+Authorization: Bearer PUT_ADMIN_TOKEN_HERE
+
+###read all users (admin)
+GET http://localhost:5000/admin-api/users
+Authorization: Bearer PUT_ADMIN_TOKEN_HERE
+
+###read all courses (admin)
+GET http://localhost:5000/admin-api/courses
+Authorization: Bearer PUT_ADMIN_TOKEN_HERE
+
+###deactivate user by id (admin) PUT_USER_ID_HERE
+PATCH http://localhost:5000/admin-api/users/69b7b5f4477f7edba6df33be/status
+Content-Type: application/json
+Authorization: Bearer PUT_ADMIN_TOKEN_HERE
+
+{
+    "isActive": false
+}
+
+###activate user by id (admin) PUT_USER_ID_HERE
+PATCH http://localhost:5000/admin-api/users/69b7b5f4477f7edba6df33be/status
+Content-Type: application/json
+Authorization: Bearer PUT_ADMIN_TOKEN_HERE
+
+{
+    "isActive": true
+}
+
+###logout
+POST http://localhost:5000/common-api/logout

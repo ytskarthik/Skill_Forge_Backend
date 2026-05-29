@@ -1,0 +1,44 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Backend for online learning platform",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "seed": "node seeds/seedUsers.js",
+    "seed:admin": "node seeds/createAdmin.js",
+    "seed:courses": "node seeds/seedCourses.js",
+    "seed:missing-courses": "node seeds/seedMissingInstructorCourses.js",
+    "seed:lectures": "node seeds/seedLectures.js",
+    "fix:lectures": "node seeds/fixLectureDurations.js"
+  },
+  "cleanupScripts": {
+    "cleanup:courses": "node seeds/cleanupCourses.js"
+  },
+  "localScripts": {
+    "add:localvideo": "node seeds/addLocalVideo.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "axios": "^1.16.1",
+    "bcryptjs": "^3.0.2",
+    "cloudinary": "^2.9.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^9.3.0",
+    "morgan": "^1.10.0",
+    "multer": "^2.1.1",
+    "qs": "^6.15.2",
+    "stripe": "^18.5.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
